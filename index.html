@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>キャリアAIマスター｜デモ版</title>
+<style>
+:root{--blue:#173c8f;--blue2:#2f67c7;--light:#eef5ff;--orange:#ff7a00;--text:#172033;--muted:#667085;--border:#d6e1f3}
+*{box-sizing:border-box}body{margin:0;background:#f6f8fc;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP","Yu Gothic",Meiryo,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:24px}.hero{background:linear-gradient(135deg,var(--blue),#2654b2);color:#fff;border-radius:22px;padding:28px 30px;margin-bottom:18px}.hero h1{margin:0 0 8px;font-size:34px}.hero p{margin:0;opacity:.92;line-height:1.7}
+.card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:22px;margin:16px 0;box-shadow:0 4px 16px rgba(25,52,101,.06)}.step{display:inline-block;background:var(--blue);color:#fff;border-radius:999px;padding:6px 12px;font-weight:700;margin-bottom:12px}h2{margin:4px 0 14px;font-size:24px}label{font-weight:700}select,input[type=range]{width:100%}select{padding:12px;border:1px solid #cfd8e8;border-radius:10px;font-size:16px;background:#fff}
+.q{padding:12px 0;border-bottom:1px solid #edf0f5}.q:last-child{border-bottom:none}.qhead{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:8px}.score{min-width:42px;text-align:center;font-weight:800;color:var(--blue)}.rangeRow{display:grid;grid-template-columns:42px 1fr 42px;gap:8px;align-items:center;color:var(--muted);font-size:12px}
+button{border:0;border-radius:12px;padding:13px 18px;font-weight:800;font-size:16px;cursor:pointer}.primary{background:var(--orange);color:#fff}.secondary{background:#eaf1ff;color:var(--blue)}.actions{display:flex;gap:10px;flex-wrap:wrap}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:820px){.grid2{grid-template-columns:1fr}.hero h1{font-size:28px}}.chartWrap{display:flex;justify-content:center;align-items:center}canvas{max-width:100%;background:#fff}.skillTable{width:100%;border-collapse:collapse}.skillTable th,.skillTable td{padding:10px;border-bottom:1px solid #edf0f5;text-align:left}.skillTable th{color:#667085;font-size:13px}.badge{display:inline-block;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:800}.badge.gap{background:#fff0e3;color:#c45300}.badge.ok{background:#e9f7ef;color:#17693b}.prompt{white-space:pre-wrap;overflow-wrap:anywhere;background:#0f172a;color:#f8fafc;border-radius:10px;padding:12px 14px;line-height:1.45;font-family:inherit;font-size:14px;max-height:320px;overflow:auto}.promptCard{padding:18px 22px}.promptCard .step{margin-bottom:6px}.promptCard h2{margin:0 0 8px}.promptCard .small{margin:6px 0 10px}.tip{background:#fff8ee;border-left:5px solid var(--orange);padding:14px 16px;border-radius:10px;line-height:1.65}.small{font-size:13px;color:var(--muted);line-height:1.6}.hidden{display:none}.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}.kpi>div{background:var(--light);border-radius:14px;padding:14px;text-align:center}.kpi b{display:block;font-size:26px;color:var(--blue)}@media(max-width:650px){.kpi{grid-template-columns:1fr}}.syncbox{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.airow{border:1px solid var(--border);border-radius:12px;padding:11px;background:#fafcff;font-weight:700}
+.airow input{margin-right:7px}
+.syncstatus{margin-top:12px;padding:12px;border-radius:10px;background:#f3f5f9;color:#667085;font-size:13px}
+.syncstatus.ok{background:#eaf7ef;color:#17693b;font-weight:700}
+.miniGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.miniGrid>div{background:var(--light);border-radius:12px;padding:12px;text-align:center}
+.miniGrid b{display:block;color:var(--blue);font-size:20px}
+.miniGrid span{font-size:12px;color:var(--muted)}
+.importbox{margin-top:14px;border:1px dashed #b9c8df;border-radius:12px;padding:12px}
+textarea{width:100%;min-height:110px;margin-top:8px;border:1px solid #cfd8e8;border-radius:10px;padding:10px;font:inherit;resize:vertical}
+.footer{color:#7a8699;font-size:12px;padding:18px 4px}
+
+.resultChartGrid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start;margin-top:20px}.radarPanel{min-width:0;background:#f8faff;border:1px solid #e2e9f5;border-radius:16px;padding:18px 12px 12px}.radarPanel h3{font-size:18px;margin:0 8px 8px}.chartGuide{margin:0 8px 12px;color:#526078;font-size:13px;line-height:1.7}.chartLegend{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;font-size:14px;font-weight:700}.legendLine{display:inline-block;width:25px;border-top:3px solid #245ac3;vertical-align:middle;margin-right:7px}.legendLine.target{border-color:#bd5900;border-top-style:dashed}.radarSvg{width:100%;height:auto;display:block;overflow:visible}.chartNote{text-align:center;font-size:12px;color:#526078;line-height:1.7;margin:0 8px 8px}.comparisonHeading{font-size:18px;margin:0 0 6px}.comparisonNote{font-size:12px;line-height:1.6;color:#526078;margin:0 0 14px}.skillComparison{padding:12px 0;border-bottom:1px solid #edf0f5}.skillComparison:first-child{padding-top:0}.comparisonTop{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;font-size:14px}.scoreLine{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#526078;margin-bottom:7px}.scoreLine strong{color:#245ac3;font-size:17px}.targetValue{color:#994900}.comparisonTrack{height:10px;background:#e8edf5;border-radius:8px;position:relative;margin:0 4px}.currentBar{height:100%;background:#245ac3;border-radius:8px}.targetMarker{position:absolute;top:-4px;height:18px;border-left:3px dashed #bd5900;transform:translateX(-1.5px)}.badge.near{background:#eef4ff;color:#245ac3}.resultSummary{margin-top:14px;font-size:14px}
+@media(max-width:950px){.resultChartGrid{grid-template-columns:1fr}.radarPanel{max-width:640px;width:100%;margin:auto}}@media(max-width:480px){.wrap{padding:12px}.card{padding:18px 14px}.radarPanel{padding:16px 0 10px}.chartLegend{gap:14px;font-size:13px}.comparisonTop{font-size:14px}.radarSvg text{font-size:21px}.radarSvg .radarScale{font-size:15px}}
+.prompt{white-space:normal;max-height:360px}.promptColumns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:24px;align-items:start}.promptColumn{white-space:pre-wrap;min-width:0}.promptColumn+ .promptColumn{border-left:1px solid #334155;padding-left:24px}.promptColumn h3{color:#a9c9ff;font-size:14px;margin:0 0 8px}.promptColumn p{margin:0}.promptScores{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:13px}.promptScores th,.promptScores td{padding:3px 6px;border-bottom:1px solid #293449;text-align:left}.promptScores th{color:#b7c4da;font-weight:500}.promptScores td:first-child,.promptScores th:first-child{padding-left:0}.promptScores td:nth-child(2){color:#a9c9ff}.promptScores td:nth-child(3){color:#ffd09a}@media(max-width:650px){.promptColumns{grid-template-columns:1fr;gap:16px}.promptColumn+ .promptColumn{border-left:0;border-top:1px solid #334155;padding:14px 0 0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section class="hero"><h1>キャリアAIマスター（デモ版）</h1><p>現在のAI活用力を、自己診断＋普段使っている生成AIの利用情報から把握し、希望職種で求められる能力との差を可視化。<br>あなた専用の「育成プロンプト」を生成し、普段使うAIを成長コーチに変えます。</p></section>
+<section class="card"><span class="step">STEP 1</span><h2>希望職種を選択</h2><label for="career">目指す職種</label><select id="career"><option value="sales">営業</option><option value="marketing">マーケティング</option><option value="engineer">エンジニア</option><option value="planning">企画</option></select><p class="small">※ 現段階では4職種の仮データで実装。実運用では企業・職種データから必要水準を更新する想定です。</p></section>
+<section class="card">
+<span class="step">STEP 2</span>
+<h2>現在のAI利用状況を取得 ＋ 自己診断</h2>
+<div class="grid2">
+  <div>
+    <h3>① 普段使っている生成AIと同期</h3>
+    <p class="small">利用中の生成AIから、利用頻度・依頼内容・AIに任せている作業・検証行動などを取得し、自己申告だけでは分からない「実際の使い方」を診断に反映する想定です。</p>
+
+    <div class="syncbox">
+      <label class="airow"><input type="checkbox" class="aiSource" value="ChatGPT"> ChatGPT</label>
+      <label class="airow"><input type="checkbox" class="aiSource" value="Gemini"> Gemini</label>
+      <label class="airow"><input type="checkbox" class="aiSource" value="Claude"> Claude</label>
+      <label class="airow"><input type="checkbox" class="aiSource" value="Copilot"> Microsoft Copilot</label>
+    </div>
+
+    <div class="actions"><button class="secondary" id="syncAI">選択したAIと同期（デモ）</button></div>
+    <div id="syncStatus" class="syncstatus">未同期：現在は自己診断のみで評価します。</div>
+
+    <div id="syncInsights" class="hidden" style="margin-top:12px">
+      <h3 style="font-size:16px">同期情報から取得する想定の指標</h3>
+      <div class="miniGrid">
+        <div><b id="usageFreq">-</b><span>利用頻度</span></div>
+        <div><b id="delegationRate">-</b><span>AIへの丸投げ傾向</span></div>
+        <div><b id="verificationRate">-</b><span>検証行動</span></div>
+        <div><b id="taskBreadth">-</b><span>用途の幅</span></div>
+      </div>
+      <p class="small">※プレ実装では疑似データを生成します。実サービスでは各AIサービスの公式API・OAuth・ユーザー許諾の範囲内で取得可能な情報のみ利用する設計を想定します。</p>
+    </div>
+
+    <div class="importbox">
+      <b>実データを使ったプレ検証用</b>
+      <p class="small">AI利用履歴の要約やエクスポート内容を貼り付けると、簡易的に診断へ反映できます。</p>
+      <textarea id="historyText" placeholder="例：最近はレポート作成、要約、データ分析でChatGPTを利用。出典確認はあまりしていない。コードはほぼAIに任せている。"></textarea>
+    </div>
+  </div>
+
+  <div>
+    <h3>② 自己診断</h3>
+    <p class="small">1＝ほとんどできない、5＝自信を持ってできる。</p>
+    <div id="questions"></div>
+  </div>
+</div>
+<div class="actions" style="margin-top:16px">
+  <button class="primary" id="diagnose">統合して診断する</button>
+  <button class="secondary" id="reset">リセット</button>
+</div>
+</section>
+<section id="result" class="hidden">
+<section class="card"><span class="step">STEP 3</span><h2>現在の力 × 目標職種の必要水準</h2><div class="kpi"><div><span>現在の平均</span><b id="currentAvg">-</b><small>/100</small></div><div><span>目標水準</span><b id="targetAvg">-</b><small>/100</small></div><div><span>最大ギャップ</span><b id="maxGap">-</b><small>pt</small></div></div><div class="resultChartGrid"><div class="radarPanel"><h3>6つの能力のバランス</h3><p class="chartGuide">外側ほど高得点。青い線が目標の破線に近づくほど、目標水準に近づきます。</p><div class="chartLegend"><span><i class="legendLine"></i>現在の力</span><span><i class="legendLine target"></i><span id="chartCareer">希望職種</span>の目標</span></div><svg id="radar" class="radarSvg" viewBox="0 0 640 520" role="img" aria-labelledby="radarTitle radarDesc"></svg><p class="chartNote">各能力は100点満点｜青＝現在 ／ オレンジ＝目標<br>目標値はデモ用の仮設定です。</p></div><div><h3 class="comparisonHeading">能力ごとの目標までの差</h3><p class="comparisonNote">青いバー＝現在の点数 ／ オレンジの縦線＝目標値</p><div id="skillRows"></div><div class="tip resultSummary" id="summaryTip"></div></div></div></section>
+<section class="card"><span class="step">STEP 4</span><h2>不足能力に合わせた成長方針</h2><div id="growthAdvice"></div></section>
+<section class="card promptCard"><span class="step">STEP 5</span><h2>個別育成プロンプト</h2><p class="small">下の文章を普段使っている生成AIの「最初の指示」として入力する想定です。</p><div class="prompt" id="promptText"></div><div class="actions" style="margin-top:12px"><button class="primary" id="copyPrompt">プロンプトをコピー</button></div></section>
+<section class="card"><span class="step">利用イメージ</span><h2>普段のAI利用中にどう変わる？</h2><div id="examples"></div></section>
+</section>
+<div class="footer">プレ実装版：診断項目・職種別目標値は仮設定。実証では質問項目の妥当性、職種別必要能力、学習効果を検証する想定です。</div>
+</div>
+<script>
+const skills=["情報収集","要約","資料作成","データ分析","コーディング","出力検証"];
+const questions=[
+{skill:"情報収集",text:"AIを使って、複数の情報源から必要な情報を効率よく集められる"},{skill:"情報収集",text:"検索条件や追加質問を変えながら、欲しい情報に近づけられる"},{skill:"要約",text:"AIに文章の目的や読者を指定し、適切な要約を作らせられる"},{skill:"要約",text:"AIの要約に抜けや偏りがないか、自分で確認できる"},{skill:"資料作成",text:"AIを使って資料の構成案・見出し・説明文を改善できる"},{skill:"資料作成",text:"AIの提案をそのまま使わず、自分の主張に合わせて修正できる"},{skill:"データ分析",text:"データをAIに渡す前に、何を確かめたいか仮説を立てられる"},{skill:"データ分析",text:"AIが示した分析結果を、自分の言葉で解釈できる"},{skill:"コーディング",text:"AIにコードを書かせるとき、要件や制約を具体的に伝えられる"},{skill:"コーディング",text:"AIが生成したコードの意味や問題点をある程度確認できる"},{skill:"出力検証",text:"AIの回答について、出典・根拠・最新性を確認する習慣がある"},{skill:"出力検証",text:"AIが自信ありげに誤る可能性を意識し、重要情報を別手段で確かめられる"}];
+const targets={sales:{"情報収集":80,"要約":75,"資料作成":85,"データ分析":65,"コーディング":35,"出力検証":75},marketing:{"情報収集":85,"要約":75,"資料作成":80,"データ分析":85,"コーディング":45,"出力検証":80},engineer:{"情報収集":80,"要約":65,"資料作成":65,"データ分析":80,"コーディング":90,"出力検証":90},planning:{"情報収集":90,"要約":85,"資料作成":90,"データ分析":80,"コーディング":35,"出力検証":85}};
+const careerNames={sales:"営業",marketing:"マーケティング",engineer:"エンジニア",planning:"企画"};
+const growthTips={"情報収集":"AIに検索を任せきらず、必要な情報・比較軸・出典条件を自分で設定する練習を行う。","要約":"要約前に『何を残すべきか』を自分で決め、AIの要約と比較する。","資料作成":"構成や表現はAIを活用しつつ、主張・結論・優先順位は自分で決める。","データ分析":"AIに分析させる前に仮説を立て、結果を見た後に自分の解釈を書いてからAIと比較する。","コーディング":"AI生成コードを実行するだけでなく、処理の意味を説明し、1箇所は自分で修正する。","出力検証":"重要な回答では出典確認・別ソース照合・前提条件確認を必ず行う。"};
+const examplesBySkill={"情報収集":"『まず、調べるべき観点を3つあなた自身で挙げてください。その後、私が不足している観点を補います。』","要約":"『先に、あなたが重要だと思うポイントを3つ選んでください。その後、私の要約と比較しましょう。』","資料作成":"『構成案は私が作りますが、最終的に何を伝えたいかはあなたが1文で決めてください。』","データ分析":"『結果を見る前に、まず仮説を1つ立ててください。分析後に予想との差を一緒に確認します。』","コーディング":"『コードを提示した後、重要な3行の意味をあなたに説明してもらい、理解できているか確認します。』","出力検証":"『この回答をそのまま採用せず、出典・更新日・別資料の3点を確認してから結論を出しましょう。』"};
+const questionsEl=document.getElementById("questions");questions.forEach((q,i)=>{const div=document.createElement("div");div.className="q";div.innerHTML=`<div class="qhead"><div><b>${q.skill}</b>｜${q.text}</div><div class="score" id="score${i}">3</div></div><div class="rangeRow"><span>1</span><input type="range" min="1" max="5" step="1" value="3" id="q${i}"><span>5</span></div>`;questionsEl.appendChild(div);const inp=div.querySelector("input");inp.addEventListener("input",()=>document.getElementById("score"+i).textContent=inp.value)});
+
+let syncedAIProfile=null;
+
+function demoSyncProfile(selected){
+  const seed=selected.join("|").length||1;
+  return {
+    usageFreq:Math.min(95,45+selected.length*12),
+    delegationRate:Math.min(90,35+(seed*7)%40),
+    verificationRate:Math.min(90,28+(seed*11)%45),
+    taskBreadth:Math.min(95,40+selected.length*10),
+    skillAdjust:{
+      "情報収集":selected.length?5:0,
+      "要約":selected.length?4:0,
+      "資料作成":selected.length?5:0,
+      "データ分析":selected.length>=2?6:2,
+      "コーディング":(selected.includes("Copilot")||selected.includes("Claude")||selected.includes("ChatGPT"))?4:0,
+      "出力検証":-Math.round(Math.max(0,55-(28+(seed*11)%45))/8)
+    }
+  };
+}
+
+function historyAdjustments(text){
+  const t=(text||"").toLowerCase(),adj={};
+  skills.forEach(s=>adj[s]=0);
+  const hasAny=(arr)=>arr.some(k=>t.includes(k));
+  if(hasAny(["出典","根拠","確認","検証","ファクトチェック"]))adj["出力検証"]+=8;
+  if(hasAny(["要約","まとめ"]))adj["要約"]+=5;
+  if(hasAny(["資料","スライド","powerpoint","ppt"]))adj["資料作成"]+=5;
+  if(hasAny(["分析","excel","データ","統計"]))adj["データ分析"]+=6;
+  if(hasAny(["コード","python","プログラム","プログラミング"]))adj["コーディング"]+=6;
+  if(hasAny(["検索","調査","情報収集","リサーチ"]))adj["情報収集"]+=6;
+  if(hasAny(["丸投げ","全部任せ","ほぼaiに任せ","そのまま使う"])){
+    adj["出力検証"]-=8;adj["資料作成"]-=3;adj["データ分析"]-=3;adj["コーディング"]-=3;
+  }
+  if(hasAny(["出典確認はあまり","確認していない","検証していない"]))adj["出力検証"]-=10;
+  return adj;
+}
+
+document.getElementById("syncAI").addEventListener("click",()=>{
+  const selected=[...document.querySelectorAll(".aiSource:checked")].map(x=>x.value);
+  if(!selected.length){
+    document.getElementById("syncStatus").className="syncstatus";
+    document.getElementById("syncStatus").textContent="同期する生成AIを1つ以上選択してください。";
+    document.getElementById("syncInsights").classList.add("hidden");
+    syncedAIProfile=null;
+    return;
+  }
+  syncedAIProfile=demoSyncProfile(selected);
+  document.getElementById("syncStatus").className="syncstatus ok";
+  document.getElementById("syncStatus").textContent=selected.join("・")+" と同期しました（プレ実装デモ）。診断に利用傾向を反映します。";
+  document.getElementById("usageFreq").textContent=syncedAIProfile.usageFreq+"%";
+  document.getElementById("delegationRate").textContent=syncedAIProfile.delegationRate+"%";
+  document.getElementById("verificationRate").textContent=syncedAIProfile.verificationRate+"%";
+  document.getElementById("taskBreadth").textContent=syncedAIProfile.taskBreadth+"%";
+  document.getElementById("syncInsights").classList.remove("hidden");
+});
+
+function getScores(){
+  const sums={},counts={};
+  skills.forEach(s=>{sums[s]=0;counts[s]=0});
+  questions.forEach((q,i)=>{sums[q.skill]+=Number(document.getElementById("q"+i).value);counts[q.skill]++});
+  const scores={};
+  skills.forEach(s=>scores[s]=Math.round((sums[s]/counts[s]-1)/4*100));
+
+  if(syncedAIProfile){
+    skills.forEach(s=>scores[s]+=syncedAIProfile.skillAdjust[s]||0);
+  }
+  const histAdj=historyAdjustments(document.getElementById("historyText").value);
+  skills.forEach(s=>scores[s]=Math.max(0,Math.min(100,scores[s]+histAdj[s])));
+  return scores
+}
+function drawRadar(current,target){
+  const svg=document.getElementById("radar"),cx=320,cy=255,R=180;
+  const point=(i,v)=>{const a=-Math.PI/2+i*Math.PI/3;return [cx+R*v/100*Math.cos(a),cy+R*v/100*Math.sin(a)]};
+  const points=(data)=>skills.map((s,i)=>point(i,data[s]).join(",")).join(" ");
+  const ring=(v)=>skills.map((s,i)=>point(i,v).join(",")).join(" ");
+  const labelPositions=[[320,32,"middle"],[500,151,"start"],[500,355,"start"],[320,480,"middle"],[140,355,"end"],[140,151,"end"]];
+  let markup=`<title id="radarTitle">現在のAI活用力と目標水準の比較</title><desc id="radarDesc">中心が0点、外側が100点です。${skills.map(s=>`${s}：現在${current[s]}点、目標${target[s]}点`).join("。")}</desc><polygon points="${ring(100)}" fill="#fff"/>`+[25,50,75,100].map(v=>`<polygon points="${ring(v)}" fill="none" stroke="#cbd6e7" stroke-width="${v===100?1.5:1}"/>`).join("");
+  skills.forEach((s,i)=>{const [x,y]=point(i,100);markup+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#d5dfed"/>`});
+  markup+=`<polygon points="${points(current)}" fill="#245ac3" fill-opacity=".16" stroke="#245ac3" stroke-width="3" stroke-linejoin="round"/><polygon points="${points(target)}" fill="none" stroke="#bd5900" stroke-width="3" stroke-dasharray="8 6" stroke-linejoin="round"/>`;
+  [0,25,50,75,100].forEach(v=>{markup+=`<text x="332" y="${cy-R*v/100+4}" class="radarScale" font-size="12" fill="#526078" stroke="#fff" stroke-width="4" paint-order="stroke">${v}</text>`});
+  skills.forEach((s,i)=>{const [x,y]=point(i,current[s]),[tx,ty]=point(i,target[s]);markup+=`<circle cx="${tx}" cy="${ty}" r="4" fill="#fff" stroke="#bd5900" stroke-width="2"/><circle cx="${x}" cy="${y}" r="4.5" fill="#245ac3" stroke="#fff" stroke-width="2"/>`;const [lx,ly,anchor]=labelPositions[i];markup+=`<text x="${lx}" y="${ly}" text-anchor="${anchor}" font-size="18" font-weight="700" fill="#172033">${s}</text><text x="${lx}" y="${ly+25}" text-anchor="${anchor}" font-size="16"><tspan fill="#245ac3" font-weight="700">${current[s]}</tspan><tspan fill="#667085"> / </tspan><tspan fill="#994900">${target[s]}</tspan></text>`});
+  svg.innerHTML=markup;
+  document.getElementById("chartCareer").textContent=careerNames[document.getElementById("career").value];
+}
+
+function wrapPromptLines(text,maxChars=20){
+  return text.split("\n").map(line=>{
+    const chars=Array.from(line),lines=[];
+    for(let i=0;i<chars.length;i+=maxChars)lines.push(chars.slice(i,i+maxChars).join(""));
+    return lines.join("\n");
+  }).join("\n");
+}
+let fullPrompt="";
+function renderPrompt(career,current,target){
+  const rawPrompt=buildPrompt(career,current,target).replace(/\n{2,}/g,"\n");
+  fullPrompt=wrapPromptLines(rawPrompt);
+  const splitAt=rawPrompt.indexOf("今後、私があなたにタスクを依頼するときは");
+  const intro=rawPrompt.slice(0,rawPrompt.indexOf("【現在のAI活用力】"));
+  const focusStart=rawPrompt.indexOf("【重点的に伸ばしたい能力】");
+  const panel=document.getElementById("promptText");
+  panel.innerHTML='<div class="promptColumns"><section class="promptColumn"><h3>診断結果・重点能力</h3><p class="promptIntro"></p><table class="promptScores"><thead><tr><th>能力</th><th>現在</th><th>目標</th></tr></thead><tbody></tbody></table><p class="promptFocus"></p></section><section class="promptColumn"><h3>AIへの支援ルール</h3><p class="promptRules"></p></section></div>';
+  panel.querySelector(".promptIntro").textContent=wrapPromptLines(intro.trim());
+  panel.querySelector("tbody").innerHTML=skills.map(s=>`<tr><td>${s}</td><td>${current[s]} / 100</td><td>${target[s]} / 100</td></tr>`).join("");
+  panel.querySelector(".promptFocus").textContent=wrapPromptLines(rawPrompt.slice(focusStart,splitAt).trim());
+  panel.querySelector(".promptRules").textContent=wrapPromptLines(rawPrompt.slice(splitAt));
+  panel.scrollTop=0;
+}
+function buildPrompt(career,current,target){const gaps=skills.map(s=>({skill:s,gap:target[s]-current[s]})).sort((a,b)=>b.gap-a.gap),focus=gaps.filter(x=>x.gap>10).slice(0,3),focusText=focus.length?focus.map(x=>`・${x.skill}（現在 ${current[x.skill]} / 目標 ${target[x.skill]}）`).join("\n"):"・大きな不足はありません。現状維持と応用力強化を重視してください。";return `あなたは私の「AI活用力コーチ」です。\n私の目標職種は「${careerNames[career]}」です。\nこの診断は、自己診断に加えて、許諾した生成AIの利用傾向・利用履歴も参考にしています。\n\n【現在のAI活用力】\n${skills.map(s=>`・${s}: ${current[s]}/100`).join("\n")}\n\n【目標職種で求める水準】\n${skills.map(s=>`・${s}: ${target[s]}/100`).join("\n")}\n\n【重点的に伸ばしたい能力】\n${focusText}\n\n今後、私があなたにタスクを依頼するときは、単に完成物を返すだけではなく、次のルールで支援してください。\n\n1. 私が伸ばすべき能力に関係する部分をAIが全部代行しそうな場合は、「ここはあなた自身で考えると○○力が伸びます」と短く提案してください。\n2. 私が考えるべき部分とAIに任せてよい部分を分けて示してください。\n3. 重要な情報については、出典・根拠・更新日を確認するよう促してください。\n4. データ分析では、結果を出す前に私自身に仮説を立てさせてください。\n5. 資料作成では、表現や構成は支援してよいですが、主張や結論は私自身が考える機会を残してください。\n6. コーディングでは、完成コードだけでなく、重要箇所を私が説明・修正する機会を作ってください。\n7. 毎回すべてを止めるのではなく、私の不足能力に関係する場面だけ介入してください。\n8. 最後に「今回どのAI活用能力を使ったか」を1〜2行で振り返ってください。\n\n目的は、AIを使わないことではなく、「AIを活用しながら、自分自身のAI活用能力も伸ばすこと」です。`}
+function renderExamples(gaps){const top=gaps.filter(x=>x.gap>10).slice(0,3),list=top.length?top:gaps.slice(0,2);return list.map(x=>`<div class="tip" style="margin:10px 0"><b>${x.skill}を伸ばす場面</b><br>${examplesBySkill[x.skill]}</div>`).join("")}
+document.getElementById("diagnose").addEventListener("click",()=>{const career=document.getElementById("career").value,current=getScores(),target=targets[career],gaps=skills.map(s=>({skill:s,gap:target[s]-current[s]})).sort((a,b)=>b.gap-a.gap),cavg=Math.round(skills.reduce((a,s)=>a+current[s],0)/skills.length),tavg=Math.round(skills.reduce((a,s)=>a+target[s],0)/skills.length),mg=Math.max(...gaps.map(x=>x.gap));document.getElementById("currentAvg").textContent=cavg;document.getElementById("targetAvg").textContent=tavg;document.getElementById("maxGap").textContent=Math.max(0,mg);document.getElementById("skillRows").innerHTML=skills.map(s=>{const gap=target[s]-current[s];const badge=gap>0?`<span class="badge ${gap>10?'gap':'near'}">目標まで${gap}点</span>`:`<span class="badge ok">目標達成${gap<0?' ＋'+(-gap)+'点':''}</span>`;return `<div class="skillComparison"><div class="comparisonTop"><b>${s}</b>${badge}</div><div class="scoreLine"><span>現在 <strong>${current[s]}</strong> / 100</span><span class="targetValue">目標 ${target[s]} / 100</span></div><div class="comparisonTrack" role="img" aria-label="${s}：現在${current[s]}点、目標${target[s]}点"><div class="currentBar" style="width:${current[s]}%"></div><span class="targetMarker" style="left:${target[s]}%"></span></div></div>`}).join("");const focus=gaps.filter(x=>x.gap>10).slice(0,3);document.getElementById("summaryTip").innerHTML=focus.length?`「${careerNames[career]}」を目指す場合、特に <b>${focus.map(x=>x.skill).join("・")}</b> を伸ばす余地があります。`:`現在の自己評価では「${careerNames[career]}」の目標水準に概ね到達しています。`;document.getElementById("growthAdvice").innerHTML=(focus.length?focus:gaps.slice(0,3)).map((x,i)=>`<div class="tip" style="margin:10px 0"><b>${i+1}. ${x.skill}</b><br>${growthTips[x.skill]}</div>`).join("");renderPrompt(career,current,target);document.getElementById("examples").innerHTML=renderExamples(gaps);drawRadar(current,target);document.getElementById("result").classList.remove("hidden");document.getElementById("result").scrollIntoView({behavior:"smooth",block:"start"})});
+document.getElementById("reset").addEventListener("click",()=>{
+  questions.forEach((q,i)=>{document.getElementById("q"+i).value=3;document.getElementById("score"+i).textContent=3});
+  document.querySelectorAll(".aiSource").forEach(x=>x.checked=false);
+  document.getElementById("historyText").value="";
+  syncedAIProfile=null;
+  document.getElementById("syncStatus").className="syncstatus";
+  document.getElementById("syncStatus").textContent="未同期：現在は自己診断のみで評価します。";
+  document.getElementById("syncInsights").classList.add("hidden");
+  document.getElementById("result").classList.add("hidden");
+});
+document.getElementById("copyPrompt").addEventListener("click",async()=>{const text=fullPrompt;try{await navigator.clipboard.writeText(text);const b=document.getElementById("copyPrompt"),old=b.textContent;b.textContent="コピーしました";setTimeout(()=>b.textContent=old,1500)}catch(e){alert("コピーできませんでした。テキストを選択してコピーしてください。")}});
+</script>
+</body>
+</html>
